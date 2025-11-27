@@ -15,7 +15,7 @@ C:\\xampp\php\php.exe -S localhost:8000
 
 ```php
     define('DB_USER', 'notsy'); // cambia `notsy` por tu usuario
-    define('DB_PASS', '1234'); // cambia 'cjnsd2829' por tu contraseña
+    define('DB_PASS', '1234'); // cambia '1234' por tu contraseña
 ```
 
 ## base de datos
