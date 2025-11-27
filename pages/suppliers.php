@@ -1,39 +1,9 @@
 <?php 
-/*
- * SUPPLIERS.PHP - Gestión de Proveedores
- * 
- * Propósito: Administrar los proveedores (empresas que nos venden productos)
- * Útil para saber a quién comprarle cuando hay que reabastecer
- * 
- * Muestra:
- * - Lista de proveedores activos
- * - Cuántos productos tiene cada proveedor
- * - Información de contacto
- */
-
 require_once '../includes/db.php';
 
 $pageTitle = 'Proveedores - Sistema POS';
 $currentPage = 'suppliers';
 
-/*
- * QUERY: Obtiene proveedores con el conteo de sus productos
- * 
- * SELECT p.*: Todos los campos de proveedores
- * COUNT(pr.id) as total_productos: Cuenta cuántos productos tiene
- * 
- * FROM proveedores p: Tabla principal
- * LEFT JOIN productos pr: Une con productos
- * ON p.id = pr.proveedor_id: Relación proveedor-productos
- * AND pr.activo = TRUE: Solo cuenta productos activos
- * 
- * WHERE p.activo = TRUE: Solo proveedores activos
- * GROUP BY p.id: Agrupa por proveedor (necesario para COUNT)
- * ORDER BY p.empresa: Ordena alfabéticamente por nombre de empresa
- * 
- * Ejemplo de resultado:
- * {id: 1, empresa: "TechDistributor SA", total_productos: 8}
- */
 $proveedores = fetchAll("
     SELECT p.*, COUNT(pr.id) as total_productos
     FROM proveedores p
@@ -74,11 +44,9 @@ include '../includes/header.php';
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Nombre Empresa</th>
+                                <th>Empresa</th>
                                 <th>Contacto</th>
                                 <th>Teléfono</th>
-                                <th>Email</th>
                                 <th>Productos</th>
                                 <th>Acciones</th>
                             </tr>
@@ -86,17 +54,12 @@ include '../includes/header.php';
                         <tbody>
                             <?php foreach ($proveedores as $prov): ?>
                             <tr>
-                                <td><span class="font-medium">#<?php echo str_pad($prov['id'], 3, '0', STR_PAD_LEFT); ?></span></td>
                                 <td><?php echo htmlspecialchars($prov['empresa']); ?></td>
                                 <td><?php echo htmlspecialchars($prov['contacto_nombre'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($prov['telefono'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($prov['email'] ?? 'N/A'); ?></td>
-                                <td><span class="badge badge-success"><?php echo $prov['total_productos']; ?> productos</span></td>
+                                <td><span class="badge badge-success"><?php echo $prov['total_productos']; ?></span></td>
                                 <td>
-                                    <div class="flex gap-2">
-                                        <button class="btn btn-sm btn-secondary" onclick="editSupplier(<?php echo $prov['id']; ?>)">Editar</button>
-                                        <button class="btn btn-sm btn-primary" onclick="viewProducts(<?php echo $prov['id']; ?>)">Ver Productos</button>
-                                    </div>
+                                    <button class="btn btn-sm btn-secondary" onclick="editSupplier(<?php echo $prov['id']; ?>)">Editar</button>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -117,26 +80,25 @@ include '../includes/header.php';
         </div>
         <div class="modal-body">
             <form id="supplierForm">
+                <input type="hidden" id="supplierId">
                 <div class="form-group">
-                    <label class="form-label">Nombre de la Empresa</label>
+                    <label class="form-label">Empresa</label>
                     <input type="text" class="form-input" id="supplierName" required>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Nombre del Contacto</label>
+                    <label class="form-label">Contacto</label>
                     <input type="text" class="form-input" id="supplierContact" required>
                 </div>
                 
-                <div class="grid grid-cols-2">
-                    <div class="form-group">
-                        <label class="form-label">Teléfono</label>
-                        <input type="tel" class="form-input" id="supplierPhone" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-input" id="supplierEmail" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-input" id="supplierPhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="supplierEmail">
                 </div>
             </form>
         </div>
