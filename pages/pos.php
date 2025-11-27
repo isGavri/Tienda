@@ -1,34 +1,9 @@
 <?php 
-/*
- * POS.PHP - Punto de Venta (Point of Sale)
- * 
- * Propósito: Interfaz principal para procesar ventas
- * Es donde el cajero escanea/busca productos y cobra a los clientes
- * 
- * Funcionamiento:
- * 1. El cajero busca productos (consulta a la BD en tiempo real vía AJAX)
- * 2. Agrega productos al carrito (solo en memoria del navegador)
- * 3. Selecciona cliente y método de pago
- * 4. Al cobrar, envía todo a api.php que procesa la venta
- * 
- * La mayoría de la lógica está en /js/pos.js
- * Este archivo solo trae los clientes de la BD para el selector
- */
-
 require_once '../includes/db.php';
 
 $pageTitle = 'Punto de Venta - Sistema POS';
 $currentPage = 'pos';
 
-/*
- * QUERY: Obtiene todos los clientes para el selector
- * 
- * CONCAT(nombre, ' ', COALESCE(apellido, '')): Junta nombre y apellido
- * COALESCE(apellido, ''): Si no hay apellido, usa string vacío
- * ORDER BY nombre: Ordena alfabéticamente
- * 
- * Esto llena el <select> de clientes para elegir a quién venderle
- */
 $clientes = fetchAll("SELECT id, CONCAT(nombre, ' ', COALESCE(apellido, '')) as nombre_completo, telefono FROM clientes ORDER BY nombre");
 
 include '../includes/header.php';
