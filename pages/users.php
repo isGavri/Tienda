@@ -1,30 +1,9 @@
 <?php 
-/*
- * USERS.PHP - Gestión de Usuarios/Empleados
- * 
- * Propósito: Administrar los usuarios del sistema (cajeros, admins, etc.)
- * Permite ver quién tiene acceso al sistema y su rol
- * 
- * En el futuro esto se conectaría con un sistema de login
- * Por ahora solo muestra la lista de empleados registrados
- */
-
 require_once '../includes/db.php';
 
 $pageTitle = 'Usuarios - Sistema POS';
 $currentPage = 'users';
 
-/*
- * QUERY 1: Obtiene todos los empleados con su rol
- * 
- * SELECT e.*: Todos los campos de empleados
- * r.nombre as rol_nombre: El nombre del rol (Administrador/Vendedor)
- * 
- * LEFT JOIN roles r: Une con la tabla de roles
- * ON e.rol_id = r.id: Relación entre empleado y su rol
- * 
- * ORDER BY e.nombre: Ordena alfabéticamente
- */
 $empleados = fetchAll("
     SELECT e.*, r.nombre as rol_nombre
     FROM empleados e
@@ -32,12 +11,6 @@ $empleados = fetchAll("
     ORDER BY e.nombre
 ");
 
-/*
- * QUERY 2: Obtiene todos los roles disponibles
- * 
- * Esto llena el <select> al crear un nuevo usuario
- * Roles típicos: Administrador, Vendedor, Gerente, etc.
- */
 $roles = fetchAll("SELECT * FROM roles");
 
 include '../includes/header.php';
@@ -71,11 +44,9 @@ include '../includes/header.php';
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
-                                <th>Fecha de Registro</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -83,7 +54,6 @@ include '../includes/header.php';
                         <tbody>
                             <?php foreach ($empleados as $emp): ?>
                             <tr <?php echo !$emp['activo'] ? 'style="opacity: 0.6;"' : ''; ?>>
-                                <td><span class="font-medium">#<?php echo str_pad($emp['id'], 3, '0', STR_PAD_LEFT); ?></span></td>
                                 <td><?php echo htmlspecialchars($emp['nombre']); ?></td>
                                 <td><?php echo htmlspecialchars($emp['email']); ?></td>
                                 <td>
@@ -91,7 +61,6 @@ include '../includes/header.php';
                                         <?php echo htmlspecialchars($emp['rol_nombre']); ?>
                                     </span>
                                 </td>
-                                <td class="text-gray-600"><?php echo date('Y-m-d', strtotime($emp['created_at'])); ?></td>
                                 <td>
                                     <?php if ($emp['activo']): ?>
                                     <span class="badge badge-success">Activo</span>
@@ -100,14 +69,7 @@ include '../includes/header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <div class="flex gap-2">
-                                        <button class="btn btn-sm btn-secondary" onclick="editUser(<?php echo $emp['id']; ?>)">Editar</button>
-                                        <?php if ($emp['activo'] && $emp['id'] != 1): ?>
-                                        <button class="btn btn-sm btn-danger" onclick="deactivateUser(<?php echo $emp['id']; ?>)">Desactivar</button>
-                                        <?php elseif (!$emp['activo']): ?>
-                                        <button class="btn btn-sm btn-success" onclick="activateUser(<?php echo $emp['id']; ?>)">Activar</button>
-                                        <?php endif; ?>
-                                    </div>
+                                    <button class="btn btn-sm btn-secondary" onclick="editUser(<?php echo $emp['id']; ?>)">Editar</button>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -128,6 +90,7 @@ include '../includes/header.php';
         </div>
         <div class="modal-body">
             <form id="userForm">
+                <input type="hidden" id="userId">
                 <div class="form-group">
                     <label class="form-label">Nombre Completo</label>
                     <input type="text" class="form-input" id="userName" required>
